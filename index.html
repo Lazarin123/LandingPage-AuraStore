@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aura Store | Premium Headless E-commerce</title>
+
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="Aura Store - Coleção de produtos eletrônicos e acessórios de alta qualidade com experiência de compra moderna e rápida."
+    />
+    <meta
+      name="keywords"
+      content="e-commerce, eletrônicos, tecnologia, compras online, ofertas, aura store"
+    />
+    <meta name="author" content="Aura Store" />
+    <meta
+      property="og:title"
+      content="Aura Store | Premium Headless E-commerce"
+    />
+    <meta
+      property="og:description"
+      content="Explore produtos selecionados com frete rápido e garantia de satisfação."
+    />
+    <meta property="og:type" content="website" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React & React DOM CDNs -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
+
+    <!-- Babel Standalone for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
+
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* Animations */
+      .animate-fadeIn {
+        animation: fadeIn 0.25s ease-in-out forwards;
+      }
+      .animate-slideLeft {
+        animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideLeft {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const {
+        useState,
+        useEffect,
+        useMemo,
+        useCallback,
+        createContext,
+        useContext,
+      } = React;
+
+      // --- MOCK PRODUCTS DATA (Fallback & Enriched Data) ---
+      const INITIAL_PRODUCTS = [
+        {
+          id: 1,
+          title: "Fones de Ouvido Wireless Pro ANC",
+          price: 299.99,
+          category: "electronics",
+          rating: { rate: 4.8, count: 120 },
+          image:
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Cancelamento ativo de ruído premium, bateria de até 30 horas e driver dinâmico de alta fidelidade sonora.",
+        },
+        {
+          id: 2,
+          title: "Smartwatch Sport GPS Pro",
+          price: 199.5,
+          category: "electronics",
+          rating: { rate: 4.5, count: 85 },
+          image:
+            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Monitoramento cardíaco 24/7, resistência à água até 50m, GPS integrado e display AMOLED Always-On.",
+        },
+        {
+          id: 3,
+          title: "Mochila Ergonomica Urban Tech",
+          price: 149.0,
+          category: "men's clothing",
+          rating: { rate: 4.2, count: 64 },
+          image:
+            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+          description:
+            'Material impermeável, compartimento acolchoado para notebook de até 16", entrada USB externa para carregamento.',
+        },
+        {
+          id: 4,
+          title: "Teclado Mecânico RGB Wireless",
+          price: 420.0,
+          category: "electronics",
+          rating: { rate: 4.9, count: 210 },
+          image:
+            "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Switches táticos hot-swappable, conexão Bluetooth/2.4Ghz e bateria recarregável de longa duração.",
+        },
+        {
+          id: 5,
+          title: "Câmera Mirrorless 4K Vlog Ultra",
+          price: 1250.0,
+          category: "electronics",
+          rating: { rate: 4.7, count: 42 },
+          image:
+            "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Gravação em 4K 60fps, tela articulável, autofoco avançado com rastreamento ocular e entrada para microfone externo.",
+        },
+        {
+          id: 6,
+          title: "Óculos de Sol Polarizado Classic",
+          price: 89.9,
+          category: "jewelery",
+          rating: { rate: 4.1, count: 115 },
+          image:
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Lentes com proteção UV400, armação leve e resistente em acetato italiano.",
+        },
+        {
+          id: 7,
+          title: "Jaqueta Corta-Vento Waterproof",
+          price: 189.9,
+          category: "men's clothing",
+          rating: { rate: 4.6, count: 98 },
+          image:
+            "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Tecido respirável e ultra-leve com tecnologia repelente à água e capuz ajustável oculto.",
+        },
+        {
+          id: 8,
+          title: "Garrafa Térmica Inox 1L KeepCold",
+          price: 65.0,
+          category: "jewelery",
+          rating: { rate: 4.8, count: 320 },
+          image:
+            "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=800&q=80",
+          description:
+            "Parede dupla com isolamento a vácuo, conserva bebidas geladas por até 24 horas e quentes por 12 horas.",
+        },
+      ];
+
+      // --- CONTEXT CREATION ---
+      const CartContext = createContext();
+
+      const CartProvider = ({ children }) => {
+        const [cart, setCart] = useState(() => {
+          const savedCart = localStorage.getItem("aura_cart");
+          return savedCart ? JSON.parse(savedCart) : [];
+        });
+        const [isCartOpen, setIsCartOpen] = useState(false);
+        const [freight, setFreight] = useState({
+          cep: "",
+          cost: null,
+          days: null,
+          loading: false,
+        });
+
+        useEffect(() => {
+          localStorage.setItem("aura_cart", JSON.stringify(cart));
+        }, [cart]);
+
+        const addToCart = (product, quantity = 1) => {
+          setCart((prev) => {
+            const existing = prev.find((item) => item.id === product.id);
+            if (existing) {
+              return prev.map((item) =>
+                item.id === product.id
+                  ? { ...item, quantity: item.quantity + quantity }
+                  : item,
+              );
+            }
+            return [...prev, { ...product, quantity }];
+          });
+          setIsCartOpen(true);
+        };
+
+        const removeFromCart = (productId) => {
+          setCart((prev) => prev.filter((item) => item.id !== productId));
+        };
+
+        const updateQuantity = (productId, newQuantity) => {
+          if (newQuantity <= 0) {
+            removeFromCart(productId);
+            return;
+          }
+          setCart((prev) =>
+            prev.map((item) =>
+              item.id === productId ? { ...item, quantity: newQuantity } : item,
+            ),
+          );
+        };
+
+        const clearCart = () => {
+          setCart([]);
+          setFreight({ cep: "", cost: null, days: null, loading: false });
+        };
+
+        const subtotal = useMemo(() => {
+          return cart.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0,
+          );
+        }, [cart]);
+
+        const totalItems = useMemo(() => {
+          return cart.reduce((sum, item) => sum + item.quantity, 0);
+        }, [cart]);
+
+        const calculateFreight = async (cep) => {
+          const cleanCep = cep.replace(/\D/g, "");
+          if (cleanCep.length !== 8) return false;
+
+          setFreight((prev) => ({ ...prev, loading: true, cep: cleanCep }));
+
+          try {
+            // Consult ViaCEP for address verification
+            const response = await fetch(
+              `https://viacep.com.br/ws/${cleanCep}/json/`,
+            );
+            const data = await response.json();
+
+            if (data.erro) {
+              setFreight({
+                cep: "",
+                cost: null,
+                days: null,
+                loading: false,
+                error: "CEP não encontrado",
+              });
+              return false;
+            }
+
+            // Mock Freight Calculation based on CEP state
+            const mockCost =
+              cleanCep.startsWith("0") || cleanCep.startsWith("1")
+                ? 15.0
+                : 28.5;
+            const mockDays =
+              cleanCep.startsWith("0") || cleanCep.startsWith("1") ? 2 : 5;
+
+            setFreight({
+              cep: cleanCep,
+              cost: subtotal > 250 ? 0 : mockCost, // Free shipping above R$250
+              days: mockDays,
+              address: `${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`,
+              loading: false,
+              error: null,
+            });
+            return true;
+          } catch (err) {
+            setFreight({
+              cep: "",
+              cost: null,
+              days: null,
+              loading: false,
+              error: "Erro ao calcular frete",
+            });
+            return false;
+          }
+        };
+
+        return (
+          <CartContext.Provider
+            value={{
+              cart,
+              addToCart,
+              removeFromCart,
+              updateQuantity,
+              clearCart,
+              isCartOpen,
+              setIsCartOpen,
+              subtotal,
+              totalItems,
+              freight,
+              calculateFreight,
+            }}
+          >
+            {children}
+          </CartContext.Provider>
+        );
+      };
+
+      const useCart = () => useContext(CartContext);
+
+      // --- ICON COMPONENT HELPER ---
+      const Icon = ({ name, size = 20, className = "" }) => {
+        useEffect(() => {
+          if (window.lucide) {
+            window.lucide.createIcons();
+          }
+        }, [name]);
+
+        return (
+          <i
+            data-lucide={name}
+            style={{ width: size, height: size }}
+            className={`inline-block ${className}`}
+          ></i>
+        );
+      };
+
+      // --- HEADER COMPONENT ---
+      const Header = ({
+        currentView,
+        setCurrentView,
+        searchTerm,
+        setSearchTerm,
+      }) => {
+        const { totalItems, setIsCartOpen } = useCart();
+
+        return (
+          <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16 gap-4">
+                {/* Logo */}
+                <div
+                  className="flex items-center gap-2 cursor-pointer select-none"
+                  onClick={() => setCurrentView({ type: "catalog" })}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">
+                    A
+                  </div>
+                  <div>
+                    <span className="text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                      AURA
+                    </span>
+                    <span className="text-xs font-semibold tracking-widest text-slate-400 block -mt-1 uppercase">
+                      Store
+                    </span>
+                  </div>
+                </div>
+
+                {/* Instant Search Bar */}
+                <div className="flex-1 max-w-md hidden sm:block relative">
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 text-slate-400">
+                      <Icon name="search" size={18} />
+                    </span>
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Buscar produtos, categorias..."
+                      className="w-full pl-10 pr-8 py-2 bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-sm rounded-full border border-transparent focus:border-indigo-500 focus:outline-none transition-all duration-200"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-3 text-slate-400 hover:text-slate-600"
+                      >
+                        <Icon name="x" size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions / Cart Button */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setCurrentView({ type: "catalog" })}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentView.type === "catalog" ? "text-indigo-600 bg-indigo-50" : "text-slate-600 hover:text-indigo-600"}`}
+                  >
+                    Catálogo
+                  </button>
+
+                  <button
+                    onClick={() => setIsCartOpen(true)}
+                    className="relative p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 transition-colors flex items-center justify-center"
+                    aria-label="Abrir carrinho"
+                  >
+                    <Icon name="shopping-bag" size={20} />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-indigo-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-fadeIn">
+                        {totalItems}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile Search Bar */}
+              <div className="pb-3 sm:hidden">
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-slate-400">
+                    <Icon name="search" size={18} />
+                  </span>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Buscar produtos..."
+                    className="w-full pl-10 pr-8 py-2 bg-slate-100 text-sm rounded-full border border-transparent focus:border-indigo-500 focus:outline-none"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3 text-slate-400"
+                    >
+                      <Icon name="x" size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </header>
+        );
+      };
+
+      // --- PRODUCT CARD COMPONENT ---
+      const ProductCard = ({ product, onViewDetail }) => {
+        const { addToCart } = useCart();
+
+        return (
+          <div className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden">
+            {/* Image Container */}
+            <div
+              className="relative pt-[80%] bg-slate-50 overflow-hidden cursor-pointer"
+              onClick={() => onViewDetail(product)}
+            >
+              <img
+                src={product.image}
+                alt={product.title}
+                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+              <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase text-slate-700 shadow-sm border border-white/50">
+                {product.category}
+              </span>
+            </div>
+
+            {/* Content */}
+            <div className="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-amber-400 flex items-center">
+                    <Icon name="star" size={14} className="fill-amber-400" />
+                  </span>
+                  <span className="text-xs font-semibold text-slate-700">
+                    {product.rating.rate}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    ({product.rating.count})
+                  </span>
+                </div>
+
+                <h3
+                  className="font-semibold text-slate-800 text-base line-clamp-2 hover:text-indigo-600 transition-colors cursor-pointer mb-2"
+                  onClick={() => onViewDetail(product)}
+                >
+                  {product.title}
+                </h3>
+
+                <p className="text-xs text-slate-500 line-clamp-2 mb-4">
+                  {product.description}
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
+                <div>
+                  <span className="text-xs text-slate-400 block font-medium">
+                    Preço
+                  </span>
+                  <span className="text-lg font-bold text-slate-900">
+                    R${" "}
+                    {product.price.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => addToCart(product)}
+                  className="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 active:scale-95"
+                >
+                  <Icon name="plus" size={16} />
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // --- CART DRAWER COMPONENT ---
+      const CartDrawer = ({ onNavigateCheckout }) => {
+        const {
+          cart,
+          isCartOpen,
+          setIsCartOpen,
+          removeFromCart,
+          updateQuantity,
+          subtotal,
+          freight,
+          calculateFreight,
+        } = useCart();
+        const [cepInput, setCepInput] = useState("");
+
+        if (!isCartOpen) return null;
+
+        const handleFreightSubmit = (e) => {
+          e.preventDefault();
+          calculateFreight(cepInput);
+        };
+
+        const total = subtotal + (freight.cost || 0);
+
+        return (
+          <div className="fixed inset-0 z-50 overflow-hidden animate-fadeIn">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsCartOpen(false)}
+            />
+
+            <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+              <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col animate-slideLeft">
+                {/* Drawer Header */}
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon
+                      name="shopping-bag"
+                      size={20}
+                      className="text-indigo-600"
+                    />
+                    <h2 className="text-lg font-bold text-slate-800">
+                      Seu Carrinho
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => setIsCartOpen(false)}
+                    className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                  >
+                    <Icon name="x" size={20} />
+                  </button>
+                </div>
+
+                {/* Items List */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                  {cart.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <Icon name="shopping-cart" size={32} />
+                      </div>
+                      <p className="text-slate-600 font-semibold mb-1">
+                        Carrinho Vazio
+                      </p>
+                      <p className="text-xs text-slate-400 mb-6">
+                        Explore o catálogo e adicione seus produtos favoritos.
+                      </p>
+                      <button
+                        onClick={() => setIsCartOpen(false)}
+                        className="px-5 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-colors"
+                      >
+                        Voltar às Compras
+                      </button>
+                    </div>
+                  ) : (
+                    cart.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex gap-4 p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-20 h-20 object-cover rounded-lg bg-white border border-slate-100"
+                        />
+                        <div className="flex-1 flex flex-col justify-between">
+                          <div>
+                            <div className="flex justify-between items-start gap-2">
+                              <h4 className="text-xs font-bold text-slate-800 line-clamp-1">
+                                {item.title}
+                              </h4>
+                              <button
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-slate-400 hover:text-rose-500"
+                              >
+                                <Icon name="trash-2" size={14} />
+                              </button>
+                            </div>
+                            <span className="text-xs text-slate-500">
+                              R$ {item.price.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="flex items-center border border-slate-200 rounded-lg bg-white">
+                              <button
+                                onClick={() =>
+                                  updateQuantity(item.id, item.quantity - 1)
+                                }
+                                className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 rounded-l-lg"
+                              >
+                                -
+                              </button>
+                              <span className="px-3 text-xs font-semibold">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  updateQuantity(item.id, item.quantity + 1)
+                                }
+                                className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 rounded-r-lg"
+                              >
+                                +
+                              </button>
+                            </div>
+                            <span className="text-xs font-bold text-slate-900">
+                              R$ {(item.price * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Freight Calculator & Summary */}
+                {cart.length > 0 && (
+                  <div className="p-5 border-t border-slate-100 bg-slate-50/50 space-y-4">
+                    {/* Freight Estimator */}
+                    <form onSubmit={handleFreightSubmit} className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700 block">
+                        Calcular Frete (ViaCEP)
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="00000-000"
+                          maxLength="9"
+                          value={cepInput}
+                          onChange={(e) => setCepInput(e.target.value)}
+                          className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500"
+                        />
+                        <button
+                          type="submit"
+                          disabled={freight.loading}
+                          className="px-4 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg hover:bg-slate-900 transition-colors disabled:opacity-50"
+                        >
+                          {freight.loading ? "Calculando..." : "Calcular"}
+                        </button>
+                      </div>
+                      {freight.error && (
+                        <p className="text-[11px] text-rose-500">
+                          {freight.error}
+                        </p>
+                      )}
+                      {freight.cost !== null && (
+                        <div className="p-2.5 bg-indigo-50/50 rounded-lg border border-indigo-100 text-xs text-indigo-900 flex justify-between items-center">
+                          <div>
+                            <span className="font-semibold block">
+                              {freight.cost === 0
+                                ? "Frete Grátis!"
+                                : `R$ ${freight.cost.toFixed(2)}`}
+                            </span>
+                            <span className="text-[10px] text-indigo-600">
+                              Entrega em até {freight.days} dias úteis
+                            </span>
+                          </div>
+                          <Icon
+                            name="truck"
+                            size={18}
+                            className="text-indigo-600"
+                          />
+                        </div>
+                      )}
+                    </form>
+
+                    {/* Price Calculation Breakdown */}
+                    <div className="space-y-1.5 pt-2 border-t border-slate-200/60 text-xs">
+                      <div className="flex justify-between text-slate-600">
+                        <span>Subtotal</span>
+                        <span>R$ {subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-600">
+                        <span>Frete</span>
+                        <span>
+                          {freight.cost !== null
+                            ? freight.cost === 0
+                              ? "Grátis"
+                              : `R$ ${freight.cost.toFixed(2)}`
+                            : "--"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Total</span>
+                        <span>R$ {total.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setIsCartOpen(false);
+                        onNavigateCheckout();
+                      }}
+                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-100 transition-colors flex items-center justify-center gap-2"
+                    >
+                      Finalizar Compra
+                      <Icon name="arrow-right" size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // --- PRODUCT DETAIL MODAL/VIEW ---
+      const ProductDetailView = ({ product, onBack }) => {
+        const { addToCart } = useCart();
+        const [qty, setQty] = useState(1);
+
+        return (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-indigo-600 mb-6 transition-colors"
+            >
+              <Icon name="arrow-left" size={16} />
+              Voltar ao Catálogo
+            </button>
+
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-10">
+              {/* Image Gallery */}
+              <div className="bg-slate-50 rounded-2xl overflow-hidden aspect-square flex items-center justify-center relative">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase text-slate-700">
+                  {product.category}
+                </span>
+              </div>
+
+              {/* Info & Buy Action */}
+              <div className="flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      <Icon
+                        name="star"
+                        size={12}
+                        className="fill-amber-500 text-amber-500"
+                      />
+                      {product.rating.rate}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      ({product.rating.count} avaliações de clientes)
+                    </span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4">
+                    {product.title}
+                  </h1>
+
+                  <p className="text-2xl font-bold text-indigo-600 mb-6">
+                    R${" "}
+                    {product.price.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+
+                  <div className="border-t border-b border-slate-100 py-4 my-4 space-y-2">
+                    <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">
+                      Descrição do Produto
+                    </h4>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs font-bold text-slate-700">
+                      Quantidade:
+                    </span>
+                    <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50">
+                      <button
+                        onClick={() => setQty(Math.max(1, qty - 1))}
+                        className="px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-l-xl"
+                      >
+                        -
+                      </button>
+                      <span className="px-4 text-sm font-bold text-slate-800">
+                        {qty}
+                      </span>
+                      <button
+                        onClick={() => setQty(qty + 1)}
+                        className="px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-r-xl"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => addToCart(product, qty)}
+                      className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2 active:scale-95"
+                    >
+                      <Icon name="shopping-bag" size={18} />
+                      Adicionar ao Carrinho
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-6 text-center border-t border-slate-100 text-slate-500 text-[11px]">
+                    <div className="p-2 bg-slate-50 rounded-lg">
+                      <Icon
+                        name="shield-check"
+                        size={16}
+                        className="mx-auto mb-1 text-indigo-600"
+                      />
+                      <span>Garantia de 1 Ano</span>
+                    </div>
+                    <div className="p-2 bg-slate-50 rounded-lg">
+                      <Icon
+                        name="truck"
+                        size={16}
+                        className="mx-auto mb-1 text-indigo-600"
+                      />
+                      <span>Envio Rápido</span>
+                    </div>
+                    <div className="p-2 bg-slate-50 rounded-lg">
+                      <Icon
+                        name="rotate-ccw"
+                        size={16}
+                        className="mx-auto mb-1 text-indigo-600"
+                      />
+                      <span>Devolução em 7 dias</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // --- CHECKOUT PROCESS VIEW ---
+      const CheckoutView = ({ onCompleteOrder }) => {
+        const { cart, subtotal, freight, clearCart } = useCart();
+        const [step, setStep] = useState(1);
+
+        const [formData, setFormData] = useState({
+          name: "",
+          email: "",
+          cpf: "",
+          cep: freight.cep || "",
+          address: freight.address || "",
+          number: "",
+          city: "",
+          paymentMethod: "credit",
+        });
+
+        const handleInputChange = (e) => {
+          setFormData({ ...formData, [e.target.name]: e.target.value });
+        };
+
+        const handleCepBlur = async () => {
+          const cleanCep = formData.cep.replace(/\D/g, "");
+          if (cleanCep.length === 8) {
+            try {
+              const res = await fetch(
+                `https://viacep.com.br/ws/${cleanCep}/json/`,
+              );
+              const data = await res.json();
+              if (!data.erro) {
+                setFormData((prev) => ({
+                  ...prev,
+                  address: `${data.logradouro}, ${data.bairro}`,
+                  city: `${data.localidade} / ${data.uf}`,
+                }));
+              }
+            } catch (e) {}
+          }
+        };
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (step < 3) {
+            setStep(step + 1);
+          } else {
+            clearCart();
+            onCompleteOrder();
+          }
+        };
+
+        const total = subtotal + (freight.cost || 0);
+
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-8 animate-fadeIn">
+            {/* Checkout Steps Header */}
+            <div className="flex items-center justify-between mb-8 max-w-md mx-auto">
+              {["Dados", "Endereço", "Pagamento"].map((label, idx) => {
+                const currentStepNumber = idx + 1;
+                const isActive = step >= currentStepNumber;
+                return (
+                  <div key={label} className="flex items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-500"}`}
+                    >
+                      {currentStepNumber}
+                    </div>
+                    <span
+                      className={`ml-2 text-xs font-medium ${isActive ? "text-slate-800 font-bold" : "text-slate-400"}`}
+                    >
+                      {label}
+                    </span>
+                    {idx < 2 && (
+                      <div
+                        className={`w-12 h-0.5 mx-2 ${step > currentStepNumber ? "bg-indigo-600" : "bg-slate-200"}`}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Form Steps */}
+              <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {step === 1 && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <h3 className="text-base font-bold text-slate-800 border-b pb-2">
+                        Informações Pessoais
+                      </h3>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-1">
+                          Nome Completo
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                          placeholder="Seu nome"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-1">
+                          E-mail
+                        </label>
+                        <input
+                          required
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                          placeholder="seu@email.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-1">
+                          CPF
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="cpf"
+                          value={formData.cpf}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                          placeholder="000.000.000-00"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 2 && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <h3 className="text-base font-bold text-slate-800 border-b pb-2">
+                        Endereço de Entrega
+                      </h3>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-1">
+                          CEP
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="cep"
+                          value={formData.cep}
+                          onChange={handleInputChange}
+                          onBlur={handleCepBlur}
+                          className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                          placeholder="00000-000"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-1">
+                          Endereço / Rua
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                          placeholder="Rua, Av..."
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs font-semibold text-slate-600 block mb-1">
+                            Número
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            name="number"
+                            value={formData.number}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                            placeholder="123"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-slate-600 block mb-1">
+                            Cidade / UF
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            name="city"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg focus:outline-none focus:border-indigo-500"
+                            placeholder="Cidade/UF"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 3 && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <h3 className="text-base font-bold text-slate-800 border-b pb-2">
+                        Forma de Pagamento
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          {
+                            id: "credit",
+                            name: "Cartão de Crédito",
+                            icon: "credit-card",
+                          },
+                          {
+                            id: "pix",
+                            name: "PIX (Desconto 5%)",
+                            icon: "qr-code",
+                          },
+                        ].map((method) => (
+                          <div
+                            key={method.id}
+                            onClick={() =>
+                              setFormData({
+                                ...formData,
+                                paymentMethod: method.id,
+                              })
+                            }
+                            className={`p-4 border rounded-xl cursor-pointer text-center transition-all ${formData.paymentMethod === method.id ? "border-indigo-600 bg-indigo-50/50 text-indigo-700 font-bold" : "border-slate-200 hover:bg-slate-50"}`}
+                          >
+                            <Icon
+                              name={method.icon}
+                              size={24}
+                              className="mx-auto mb-2 text-indigo-600"
+                            />
+                            <span className="text-xs block">{method.name}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {formData.paymentMethod === "credit" ? (
+                        <div className="space-y-2 pt-2">
+                          <input
+                            required
+                            type="text"
+                            placeholder="Número do Cartão"
+                            className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg"
+                          />
+                          <div className="grid grid-cols-2 gap-2">
+                            <input
+                              required
+                              type="text"
+                              placeholder="MM/AA"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg"
+                            />
+                            <input
+                              required
+                              type="text"
+                              placeholder="CVV"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 border rounded-lg"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-emerald-50 text-emerald-800 text-xs rounded-xl border border-emerald-100 text-center">
+                          O QR Code para pagamento PIX será gerado na próxima
+                          tela.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between pt-4 border-t">
+                    {step > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setStep(step - 1)}
+                        className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800"
+                      >
+                        Voltar
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="ml-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-colors"
+                    >
+                      {step === 3 ? "Confirmar Pedido" : "Avançar"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Order Summary Sidebar */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 h-fit space-y-4">
+                <h3 className="text-sm font-bold text-slate-800">
+                  Resumo do Pedido
+                </h3>
+                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                  {cart.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center text-xs"
+                    >
+                      <span className="text-slate-600 line-clamp-1 flex-1">
+                        {item.quantity}x {item.title}
+                      </span>
+                      <span className="font-bold text-slate-800 ml-2">
+                        R$ {(item.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-3 border-t border-slate-200 text-xs space-y-1.5">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Subtotal</span>
+                    <span>R$ {subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Frete</span>
+                    <span>
+                      {freight.cost
+                        ? `R$ ${freight.cost.toFixed(2)}`
+                        : "Grátis"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-bold text-sm text-slate-900 pt-2 border-t">
+                    <span>Total</span>
+                    <span>R$ {total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // --- MAIN CATALOG & FILTER VIEW ---
+      const CatalogView = ({ products, loading, searchTerm, onViewDetail }) => {
+        const [selectedCategory, setSelectedCategory] = useState("all");
+        const [sortBy, setSortBy] = useState("featured");
+        const [minRating, setMinRating] = useState(0);
+        const [priceRange, setPriceRange] = useState(2000);
+        const [currentPage, setCurrentPage] = useState(1);
+        const itemsPerPage = 6;
+
+        // Filter Logic
+        const filteredProducts = useMemo(() => {
+          return products
+            .filter((product) => {
+              const matchesSearch =
+                product.title
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase()) ||
+                product.description
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase());
+              const matchesCategory =
+                selectedCategory === "all" ||
+                product.category === selectedCategory;
+              const matchesRating = product.rating.rate >= minRating;
+              const matchesPrice = product.price <= priceRange;
+
+              return (
+                matchesSearch &&
+                matchesCategory &&
+                matchesRating &&
+                matchesPrice
+              );
+            })
+            .sort((a, b) => {
+              if (sortBy === "price-low") return a.price - b.price;
+              if (sortBy === "price-high") return b.price - a.price;
+              if (sortBy === "rating") return b.rating.rate - a.rating.rate;
+              return a.id - b.id; // Default / Featured
+            });
+        }, [
+          products,
+          searchTerm,
+          selectedCategory,
+          sortBy,
+          minRating,
+          priceRange,
+        ]);
+
+        // Pagination Calculation
+        const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+        const currentProducts = useMemo(() => {
+          const start = (currentPage - 1) * itemsPerPage;
+          return filteredProducts.slice(start, start + itemsPerPage);
+        }, [filteredProducts, currentPage]);
+
+        useEffect(() => {
+          setCurrentPage(1); // Reset page on filter change
+        }, [searchTerm, selectedCategory, sortBy, minRating, priceRange]);
+
+        const categories = [
+          "all",
+          "electronics",
+          "jewelery",
+          "men's clothing",
+          "women's clothing",
+        ];
+
+        return (
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Banner Hero */}
+            <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white rounded-3xl p-8 sm:p-12 mb-10 shadow-xl relative overflow-hidden">
+              <div className="relative z-10 max-w-xl">
+                <span className="bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 inline-block">
+                  Tecnologia & Estilo
+                </span>
+                <h1 className="text-3xl sm:text-5xl font-black mb-4 leading-tight">
+                  Produtos Premium Escolhidos para Você.
+                </h1>
+                <p className="text-indigo-200 text-sm sm:text-base mb-6">
+                  Aproveite frete grátis para compras acima de R$ 250 e entrega
+                  rápida em todo o Brasil.
+                </p>
+              </div>
+              {/* Background Blob Effect */}
+              <div className="absolute -right-10 -bottom-10 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Sidebar Filters */}
+              <aside className="w-full md:w-64 space-y-6 flex-shrink-0">
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-5">
+                  <div className="flex items-center justify-between border-b pb-3">
+                    <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                      <Icon name="sliders" size={16} /> Filtros
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setSelectedCategory("all");
+                        setMinRating(0);
+                        setPriceRange(2000);
+                        setSortBy("featured");
+                      }}
+                      className="text-[11px] font-semibold text-indigo-600 hover:underline"
+                    >
+                      Limpar
+                    </button>
+                  </div>
+
+                  {/* Category Filter */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-2">
+                      Categorias
+                    </label>
+                    <div className="space-y-1">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize ${selectedCategory === cat ? "bg-indigo-50 text-indigo-600 font-bold" : "text-slate-600 hover:bg-slate-50"}`}
+                        >
+                          {cat === "all" ? "Todas as Categorias" : cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price Range Filter */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs font-bold text-slate-700">
+                        Preço Máximo
+                      </label>
+                      <span className="text-xs font-bold text-indigo-600">
+                        R$ {priceRange}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="50"
+                      max="2000"
+                      step="50"
+                      value={priceRange}
+                      onChange={(e) => setPriceRange(Number(e.target.value))}
+                      className="w-full accent-indigo-600 cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Minimum Rating Filter */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-2">
+                      Avaliação Mínima
+                    </label>
+                    <div className="flex gap-1">
+                      {[0, 3, 4, 4.5].map((rate) => (
+                        <button
+                          key={rate}
+                          onClick={() => setMinRating(rate)}
+                          className={`flex-1 py-1 text-xs font-semibold rounded-lg border transition-all ${minRating === rate ? "bg-indigo-600 text-white border-indigo-600" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                        >
+                          {rate === 0 ? "Todas" : `${rate}★`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              {/* Product Grid Area */}
+              <div className="flex-1">
+                {/* Sort & Results Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <p className="text-xs text-slate-500">
+                    Mostrando{" "}
+                    <span className="font-bold text-slate-800">
+                      {filteredProducts.length}
+                    </span>{" "}
+                    produtos encontrados
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 whitespace-nowrap">
+                      Ordenar por:
+                    </span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="bg-white border border-slate-200 text-xs text-slate-700 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-indigo-500 shadow-sm"
+                    >
+                      <option value="featured">Destaques</option>
+                      <option value="price-low">Menor Preço</option>
+                      <option value="price-high">Maior Preço</option>
+                      <option value="rating">Melhor Avaliados</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Products List */}
+                {loading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <div
+                        key={n}
+                        className="bg-white rounded-2xl h-80 animate-pulse p-4 flex flex-col justify-between"
+                      >
+                        <div className="bg-slate-200 h-40 rounded-xl w-full" />
+                        <div className="space-y-2">
+                          <div className="bg-slate-200 h-4 rounded w-3/4" />
+                          <div className="bg-slate-200 h-4 rounded w-1/2" />
+                        </div>
+                        <div className="bg-slate-200 h-8 rounded-xl w-full" />
+                      </div>
+                    ))}
+                  </div>
+                ) : currentProducts.length === 0 ? (
+                  <div className="bg-white rounded-2xl p-12 text-center border border-slate-100 shadow-sm">
+                    <Icon
+                      name="search-x"
+                      size={48}
+                      className="mx-auto text-slate-300 mb-3"
+                    />
+                    <h3 className="text-base font-bold text-slate-800 mb-1">
+                      Nenhum produto encontrado
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Tente ajustar seus filtros ou termo de busca.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {currentProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onViewDetail={onViewDetail}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-10">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                      className="p-2 border rounded-xl bg-white text-slate-600 disabled:opacity-40 hover:bg-slate-50"
+                    >
+                      <Icon name="chevron-left" size={18} />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-9 h-9 text-xs font-bold rounded-xl transition-all ${currentPage === page ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "bg-white border text-slate-600 hover:bg-slate-50"}`}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    )}
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                      className="p-2 border rounded-xl bg-white text-slate-600 disabled:opacity-40 hover:bg-slate-50"
+                    >
+                      <Icon name="chevron-right" size={18} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </main>
+        );
+      };
+
+      // --- SUCCESS SCREEN MODAL ---
+      const SuccessModal = ({ onClose }) => (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl space-y-4">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+              <Icon name="check-circle-2" size={36} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800">
+              Pedido Confirmado!
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Seu pedido foi processado com sucesso. Enviamos um e-mail de
+              confirmação com o código de rastreamento.
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-100 transition-colors"
+            >
+              Continuar Comprando
+            </button>
+          </div>
+        </div>
+      );
+
+      // --- MAIN APP COMPONENT ---
+      const App = () => {
+        const [products, setProducts] = useState(INITIAL_PRODUCTS);
+        const [loading, setLoading] = useState(false);
+        const [searchTerm, setSearchTerm] = useState("");
+        const [currentView, setCurrentView] = useState({ type: "catalog" });
+        const [showSuccess, setShowSuccess] = useState(false);
+
+        // Fetch external products from FakeStoreAPI (Fallback to initial state if fails)
+        useEffect(() => {
+          const fetchExternalProducts = async () => {
+            try {
+              setLoading(true);
+              const res = await fetch(
+                "https://fakestoreapi.com/products?limit=8",
+              );
+              if (res.ok) {
+                const apiData = await res.json();
+                if (apiData.length > 0) {
+                  // Enrich API data with pt-BR formatting where needed
+                  const formatted = apiData.map((item) => ({
+                    ...item,
+                    price: Math.round(item.price * 5), // Simple currency conversion mock
+                  }));
+                  setProducts(formatted);
+                }
+              }
+            } catch (e) {
+              console.warn(
+                "API Fetching failed. Using local mock data instead.",
+                e,
+              );
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          fetchExternalProducts();
+        }, []);
+
+        return (
+          <CartProvider>
+            <div className="min-h-screen flex flex-col">
+              <Header
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+
+              <div className="flex-1">
+                {currentView.type === "catalog" && (
+                  <CatalogView
+                    products={products}
+                    loading={loading}
+                    searchTerm={searchTerm}
+                    onViewDetail={(product) =>
+                      setCurrentView({ type: "detail", product })
+                    }
+                  />
+                )}
+
+                {currentView.type === "detail" && (
+                  <ProductDetailView
+                    product={currentView.product}
+                    onBack={() => setCurrentView({ type: "catalog" })}
+                  />
+                )}
+
+                {currentView.type === "checkout" && (
+                  <CheckoutView
+                    onCompleteOrder={() => {
+                      setShowSuccess(true);
+                      setCurrentView({ type: "catalog" });
+                    }}
+                  />
+                )}
+              </div>
+
+              <CartDrawer
+                onNavigateCheckout={() => setCurrentView({ type: "checkout" })}
+              />
+
+              {showSuccess && (
+                <SuccessModal onClose={() => setShowSuccess(false)} />
+              )}
+
+              {/* Footer */}
+              <footer className="bg-white border-t border-slate-200 mt-16 py-8">
+                <div className="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400 space-y-2">
+                  <p>
+                    © 2026 Aura Store. Projeto Frontend de Portfólio de Alta
+                    Performance.
+                  </p>
+                  <p>
+                    Desenvolvido com React, Tailwind CSS e integração de APIs
+                    REST.
+                  </p>
+                </div>
+              </footer>
+            </div>
+          </CartProvider>
+        );
+      };
+
+      // Render React Root
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
